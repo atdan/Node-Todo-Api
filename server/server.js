@@ -1,3 +1,5 @@
+// var env = process.env.NODE_ENV ;
+
 // node module import
 var express = require(`express`);
 var bodyParser = require(`body-parser`);
@@ -122,6 +124,30 @@ app.patch( '/todos/:id', (req, res) => {
         res.status(400).send();
     })
 } );
+
+//  POST /users
+app.post(`/users`, (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+
+    var user = new User(body);
+
+    //model methods : User
+    //instance methods : user
+
+
+
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        //use x-auth for custom header
+        res.header(`x-auth`, token).send(user);
+        //console.log("Token: ", token)
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
+});
+
+
 
 app.listen(port, () => {
     console.log(`Started on port ${3000}`);
