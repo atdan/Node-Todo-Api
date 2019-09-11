@@ -87,6 +87,31 @@ UserSchema.statics.findByToken = function (token) {
   });
 };
 
+UserSchema.statics.findByCredentials = function (email, password){
+
+    var User = this;
+
+    return User.findOne({email}).then((user) => {
+        //if no user exists in the db with email go to catch block will be called
+        if (!user){
+            return Promise.reject();
+        }
+
+        return new Promise((resolve, reject) => {
+            //use bcrypt .compare to compare the password
+
+             bcrypt.compare(password, user.password, (err, res ) => {
+
+                 if (res){
+                     resolve(user);
+                 }else {
+                     reject();
+                 }
+             })
+        })
+    })
+};
+
 //use mongoose middleware to store hashed password
 UserSchema.pre('save', function (next) {
    var user = this;

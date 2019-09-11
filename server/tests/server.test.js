@@ -5,23 +5,11 @@ const {ObjectID} = require(`mongodb`);
 const {app} = require(`./../server`);
 const {Todo} = require(`./../models/todo`);
 
+const {todos, populateTodos, users, populateUsers} = require(`./seed/seed`);
 
-const testTodos = [{
 
-    _id: new ObjectID,
-    text: 'First test todo'
-},{
-    _id: new ObjectID,
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 12345
-}];
-
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(testTodos);
-    }).then( () => done());
-});
+// beforeEach( populateUsers);
+beforeEach( populateTodos);
 
 describe(`POST /todos`, () => {
     it('should create a new todo',  (done) => {
@@ -88,10 +76,10 @@ describe(`GET /todos/:id`, () => {
     it('should return todo doc',  (done) => {
 
         request(app)
-            .get(`/todos/${testTodos[0]._id.toHexString()}`)//to convert object to string
+            .get(`/todos/${todos[0]._id.toHexString()}`)//to convert object to string
             .expect(200)
             .expect((res) => {
-                expect(res.body.todo.text).toBe(testTodos[0].text);
+                expect(res.body.todo.text).toBe(todos[0].text);
             })
             .end(done);
     });
@@ -120,7 +108,7 @@ describe(`GET /todos/:id`, () => {
 describe('DELETE /todos/:id', () => {
     it('should remove a todo',  (done) => {
 
-        var hexId = testTodos[1]._id.toHexString();
+        var hexId = todos[1]._id.toHexString();
 
         request(app)
             .delete(`/todos/${hexId}`)
@@ -165,7 +153,7 @@ describe('DELETE /todos/:id', () => {
 describe('PATCH /todos/:id', () => {
     it('should update the todo',  (done) => {
         //get id
-        var hexID = testTodos[0]._id.toHexString();
+        var hexID = todos[0]._id.toHexString();
         const text = "This is the new text 0";
 
         //update the text
@@ -177,9 +165,9 @@ describe('PATCH /todos/:id', () => {
             })
             .expect(200)
             .expect( ( res) => {
-                expect(res.body.todo.text).toBe(text);
-                expect(res.body.todo.completed).toBe(true);
-                expect(res.body.todo.completedAt).tobeA('number');
+                expect(res.body.todos.text).toBe(text);
+                expect(res.body.todos.completed).toBe(true);
+                expect(res.body.todos.completedAt).tobeA('number');
             })
             .end(done);
 
@@ -199,7 +187,7 @@ describe('PATCH /todos/:id', () => {
         //200
 
         //assert text is changed, completed false, completed at is null .toNotExist
-        var hexID = testTodos[1]._id.toHexString();
+        var hexID = todos[1]._id.toHexString();
         var text = "This is the new text 1";
 
         //update the text
@@ -210,10 +198,11 @@ describe('PATCH /todos/:id', () => {
                 text: text
             })
             .expect(200)
+
             .expect( ( res) => {
-                expect(res.body.todo.text).toBe(text);
-                expect(res.body.todo.completed).toBe(true);
-                expect(res.body.todo.completedAt).toNotExist();
+                expect(res.body.todos.text).toBe(text);
+                expect(res.body.todos.completed).toBe(true);
+                expect(res.body.todos.completedAt).toNotExist();
             })
             .end(done);
 
