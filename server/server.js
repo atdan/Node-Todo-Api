@@ -168,6 +168,18 @@ app.post('/users/login', (req, res) => {
     });
 });
 
+//private route for only users that are logged in already, we just need to remove the token
+app.delete('/users/me/token', authenticate, (req, res) => {
+
+    //call an instance method
+    req.user.removeToken(req.token).then(() => {
+        res.status(200).send();
+
+    }, () => {
+        res.status(400).send();
+    })
+});
+
 app.listen(port, () => {
     console.log(`Started on port ${3000}`);
 });
